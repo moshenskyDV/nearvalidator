@@ -216,8 +216,6 @@ Next command checks the logs:
 journalctl -n 100 -f -u neard | ccze -A
 ```
 
-<img width="861" alt="image" src="https://user-images.githubusercontent.com/15670713/180610491-fbc116b1-f64b-4d3f-b140-fed69840a7ca.png">
-
 All right. Now we have an validator that is able to connect to other validators and support the network. Validator is attached to our account. Next step - is fulfilling validator by tokens. By design, validator should have at least "seat price" tokens staked into it. First staker will be our main account `moshenskyi.shardnet.near`. Let's stake some Near!
 To have ability to stake near - we need to deploy a smart contract which will implement staking on account. Near-CLI has already template for it, so can be sure that smart contract is secure (change the parameters to your pool respectively). Public key can be found in `~/.near/validator_key.json`. Numeration parameter means how much percents of reward your pool will take from stakers as fee. For example my pool takes 3% fee.
 

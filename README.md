@@ -271,4 +271,8 @@ You can use your instance as RPC node, so you can do requests to network. For ex
 near view moshenskyi.factory.shardnet.near get_accounts '{"from_index": 0, "limit": 10}' --accountId moshenskyi.shardnet.near
 ```
 
+<img width="803" alt="image" src="https://user-images.githubusercontent.com/15670713/180619662-54c4181f-420c-48a0-8f53-fd1ad596332a.png">
+
+
 That's it. Node is working and validating the network. If you have any questions or suggestions - please write in comments below!
+Remember your validator should have uptime >90% to not be kicked from network, also it's much better to take it >99% for reward size.

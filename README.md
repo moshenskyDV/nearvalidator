@@ -219,5 +219,56 @@ journalctl -n 100 -f -u neard | ccze -A
 <img width="861" alt="image" src="https://user-images.githubusercontent.com/15670713/180610491-fbc116b1-f64b-4d3f-b140-fed69840a7ca.png">
 
 All right. Now we have an validator that is able to connect to other validators and support the network. Validator is attached to our account. Next step - is fulfilling validator by tokens. By design, validator should have at least "seat price" tokens staked into it. First staker will be our main account `moshenskyi.shardnet.near`. Let's stake some Near!
+To have ability to stake near - we need to deploy a smart contract which will implement staking on account. Near-CLI has already template for it, so can be sure that smart contract is secure (change the parameters to your pool respectively). Public key can be found in `~/.near/validator_key.json`. Numeration parameter means how much percents of reward your pool will take from stakers as fee. For example my pool takes 3% fee.
 
+```
+near call factory.shardnet.near create_staking_pool '{"staking_pool_id": "moshenskyi", "owner_id": "moshenskyi.shardnet.near", "stake_public_key": "ed25519:HCWiykC8ceC7S2CjuvVZaL5eRzTJUiXsaWYtNWq5Vekc", "reward_fee_fraction": {"numerator": 3, "denominator": 100}, "code_hash":"DD428g9eqLL8fWUxv8QSpVFzyHi1Qd16P8ephYCTmMSZ"}' --accountId="moshenskyi.shardnet.near" --amount=30 --gas=300000000000000
+```
 
+Smart contract is configured. It's time to enrich it with some coins. Check the seat price on <a href="https://explorer.shardnet.near.org/nodes/validators">explorer</a> and send at least this amount of Near to validator:
+
+```
+near call moshenskyi.factory.shardnet.near deposit_and_stake --amount 300 --accountId moshenskyi.shardnet.near --gas=300000000000000
+```
+
+To make sure we staked some coins lets check it:
+
+```
+near view moshenskyi.factory.shardnet.near get_account_staked_balance '{"account_id": "moshenskyi.shardnet.near"}'
+```
+
+<img width="735" alt="image" src="https://user-images.githubusercontent.com/15670713/180616932-142467a7-645a-4bef-a00a-eaa5ac78fea9.png">
+
+If you got a big number - it's ok. The measurement in YoctoNear. Check details here: <a href="https://nomicon.io/Economics/Economic">Near Economics</a>
+The validator should appear in <a href="">Near Explorer</a>
+
+<img width="839" alt="image" src="https://user-images.githubusercontent.com/15670713/180618962-b8df5bb9-da97-46ed-bbe9-be77d0d5324d.png">
+
+We finished all preparations. Let's run the validator by `sudo systemctl start neard` and wait until it fully syncronized. It should download all headers first.
+After that we can tell the network that we are ready to participate (and keep telling it every epoch, eg: every 4 hours). For this we need to ping the network:
+
+```
+near call moshenskyi.factory.shardnet.near ping '{}' --accountId moshenskyi.shardnet.near --gas=300000000000000
+```
+
+As far as I need to do it every 4 hours I decided to create a CRON task:
+
+```
+cd ~
+vim ping.sh
+------>Paste previous ping command.
+
+crontab -e
+------> paste the code below:
+0 */2 * * * /ping.sh
+```
+
+If my server is working - every two hours it will send signal to network that my validator is OK and ready to work. It's importants, because if you didn't confirm your status - your validator will be kicked in next epoch.
+
+You can use your instance as RPC node, so you can do requests to network. For example, if you want to check your node delegators and their stake - you can write (change pool id and accout id to yours):
+
+```
+near view moshenskyi.factory.shardnet.near get_accounts '{"from_index": 0, "limit": 10}' --accountId moshenskyi.shardnet.near
+```
+
+That's it. Node is working and validating the network. If you have any questions or suggestions - please write in comments below!
